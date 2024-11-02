@@ -2,3 +2,5 @@ diffusers
 accelerate
 huggingface_hub
 transformers
+sentencepiece
+PIL
