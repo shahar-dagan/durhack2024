@@ -1,6 +1,9 @@
-diffusers
-accelerate
-huggingface_hub
-transformers
-sentencepiece
-PIL
+# diffusers
+# accelerate
+# huggingface_hub
+# transformers
+# sentencepiece
+# PIL
+
+
+flask
