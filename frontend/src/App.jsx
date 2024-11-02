@@ -88,7 +88,7 @@ export default function App() {
   // Function to add a new "Button" node
   const addButtonNode = () => {
     const newNode = {
-      id: `button-${nodes.filter(node => node.id.startsWith('button')).length + 1}`, // Unique ID for button nodes
+      id: `button-${nodes.filter(node => node.id.startsWith('button')).length + 1}`,
       position: { x: Math.random() * 250, y: Math.random() * 250 },
       data: { label: `Button Node ${nodes.filter(node => node.id.startsWith('button')).length + 1}`, onChangeLabel: handleLabelChange },
       type: 'buttonNode',
@@ -99,7 +99,7 @@ export default function App() {
   // Function to add a new "Action" node
   const addActionNode = () => {
     const newNode = {
-      id: `action-${nodes.filter(node => node.id.startsWith('action')).length + 1}`, // Unique ID for action nodes
+      id: `action-${nodes.filter(node => node.id.startsWith('action')).length + 1}`,
       position: { x: Math.random() * 250, y: Math.random() * 250 },
       data: { label: `Action Node ${nodes.filter(node => node.id.startsWith('action')).length + 1}`, onChangeLabel: handleLabelChange },
       type: 'actionNode',
@@ -116,6 +116,32 @@ export default function App() {
     );
   };
 
+  // Function to export the diagram as JSON
+  const exportDiagram = () => {
+    const diagramData = {
+      nodes: nodes.map(node => ({
+        id: node.id,
+        type: node.type,
+        label: node.data.label,
+        position: node.position,
+      })),
+      edges: edges.map(edge => ({
+        id: edge.id,
+        source: edge.source,
+        target: edge.target,
+      })),
+    };
+
+    const blob = new Blob([JSON.stringify(diagramData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'diagram.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
       <button onClick={addButtonNode} style={{ position: 'absolute', zIndex: 10, top: '10px', left: '10px' }}>
@@ -123,6 +149,9 @@ export default function App() {
       </button>
       <button onClick={addActionNode} style={{ position: 'absolute', zIndex: 10, top: '10px', left: '120px' }}>
         Add Action Node
+      </button>
+      <button onClick={exportDiagram} style={{ position: 'absolute', zIndex: 10, top: '10px', right: '10px' }}>
+        Export Diagram
       </button>
       <ReactFlow
         nodes={nodes}
