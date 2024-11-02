@@ -171,29 +171,34 @@ export default function App() {
 
   // Export Diagram function (same as before)
   const exportDiagram = () => {
-    const diagramData = {
-      nodes: nodes.map(node => ({
-        id: node.id,
-        type: node.type,
-        label: node.data.label,
-        position: node.position,
-      })),
-      edges: edges.map(edge => ({
-        id: edge.id,
-        source: edge.source,
-        target: edge.target,
-        label: edge.label,
-      })),
+    // Map each node to an object containing its text and buttons
+  const diagramData = nodes.map(node => {
+    // Find edges where this node is the source
+    const outgoingEdges = edges.filter(edge => edge.source === node.id);
+
+    // Create buttons dictionary from outgoing edges
+    const buttons = {};
+    outgoingEdges.forEach(edge => {
+      buttons[edge.label] = edge.target;
+    });
+
+    // Return the formatted object for this node
+    return {
+      id: node.id,
+      text: node.data.label,
+      buttons: buttons
     };
+  });
 
-    const blob = new Blob([JSON.stringify(diagramData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
+  // Convert to JSON and download
+  const blob = new Blob([JSON.stringify(diagramData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
 
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'diagram.json';
-    a.click();
-    URL.revokeObjectURL(url);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'diagram.json';
+  a.click();
+  URL.revokeObjectURL(url);
   };
 
   return (
