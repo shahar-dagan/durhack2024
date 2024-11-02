@@ -204,10 +204,7 @@ export default function App() {
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
       <button onClick={addButtonNode} style={{ position: 'absolute', zIndex: 10, top: '10px', left: '10px' }}>
-        Add Button Node
-      </button>
-      <button onClick={addActionNode} style={{ position: 'absolute', zIndex: 10, top: '10px', left: '120px' }}>
-        Add Action Node
+        Add Button
       </button>
       <button onClick={exportDiagram} style={{ position: 'absolute', zIndex: 10, top: '10px', right: '10px' }}>
         Export Diagram
