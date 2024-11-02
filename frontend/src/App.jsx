@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   ReactFlow,
   MiniMap,
@@ -7,15 +7,74 @@ import {
   useNodesState,
   useEdgesState,
   addEdge,
+  Handle,
 } from '@xyflow/react';
 
 import '@xyflow/react/dist/style.css';
 
 const initialNodes = [
-  { id: '1', position: { x: 0, y: 0 }, data: { label: '1' } },
-  { id: '2', position: { x: 0, y: 100 }, data: { label: '2' } },
+  { id: 'button-1', position: { x: 0, y: 0 }, data: { label: 'Button Node 1' }, type: 'buttonNode' },
+  { id: 'action-1', position: { x: 0, y: 100 }, data: { label: 'Action Node 1' }, type: 'actionNode' },
 ];
-const initialEdges = [{ id: 'e1-2', source: '1', target: '2' }];
+const initialEdges = [{ id: 'e1-2', source: 'button-1', target: 'action-1' }];
+
+// Custom component for "Button" nodes
+function ButtonNode({ id, data, isConnectable }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [label, setLabel] = useState(data.label);
+
+  const onDoubleClick = () => setIsEditing(true);
+  const onBlur = () => {
+    data.onChangeLabel(id, label); // Updates the main state
+    setIsEditing(false);
+  };
+
+  return (
+    <div onDoubleClick={onDoubleClick} style={{ padding: '10px', backgroundColor: '#f0f0f0', borderRadius: '5px' }}>
+      {isEditing ? (
+        <input
+          value={label}
+          onChange={(e) => setLabel(e.target.value)}
+          onBlur={onBlur}
+          autoFocus
+        />
+      ) : (
+        <div>{label}</div>
+      )}
+      <Handle type="target" position="top" isConnectable={isConnectable} />
+      <Handle type="source" position="bottom" isConnectable={isConnectable} />
+    </div>
+  );
+}
+
+// Custom component for "Action" nodes
+function ActionNode({ id, data, isConnectable }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [label, setLabel] = useState(data.label);
+
+  const onDoubleClick = () => setIsEditing(true);
+  const onBlur = () => {
+    data.onChangeLabel(id, label); // Updates the main state
+    setIsEditing(false);
+  };
+
+  return (
+    <div onDoubleClick={onDoubleClick} style={{ padding: '10px', backgroundColor: '#e0ffe0', borderRadius: '5px' }}>
+      {isEditing ? (
+        <input
+          value={label}
+          onChange={(e) => setLabel(e.target.value)}
+          onBlur={onBlur}
+          autoFocus
+        />
+      ) : (
+        <div>{label}</div>
+      )}
+      <Handle type="target" position="top" isConnectable={isConnectable} />
+      <Handle type="source" position="bottom" isConnectable={isConnectable} />
+    </div>
+  );
+}
 
 export default function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -26,20 +85,44 @@ export default function App() {
     [setEdges]
   );
 
-  // Function to add a new node
-  const addNode = () => {
+  // Function to add a new "Button" node
+  const addButtonNode = () => {
     const newNode = {
-      id: (nodes.length + 1).toString(), // Create a unique ID for the node
-      position: { x: Math.random() * 250, y: Math.random() * 250 }, // Random position for demonstration
-      data: { label: `Node ${nodes.length + 1}` },
+      id: `button-${nodes.filter(node => node.id.startsWith('button')).length + 1}`, // Unique ID for button nodes
+      position: { x: Math.random() * 250, y: Math.random() * 250 },
+      data: { label: `Button Node ${nodes.filter(node => node.id.startsWith('button')).length + 1}`, onChangeLabel: handleLabelChange },
+      type: 'buttonNode',
     };
     setNodes((nds) => [...nds, newNode]);
   };
 
+  // Function to add a new "Action" node
+  const addActionNode = () => {
+    const newNode = {
+      id: `action-${nodes.filter(node => node.id.startsWith('action')).length + 1}`, // Unique ID for action nodes
+      position: { x: Math.random() * 250, y: Math.random() * 250 },
+      data: { label: `Action Node ${nodes.filter(node => node.id.startsWith('action')).length + 1}`, onChangeLabel: handleLabelChange },
+      type: 'actionNode',
+    };
+    setNodes((nds) => [...nds, newNode]);
+  };
+
+  // Function to update the label of a node in the main nodes state
+  const handleLabelChange = (id, newLabel) => {
+    setNodes((nds) =>
+      nds.map((node) =>
+        node.id === id ? { ...node, data: { ...node.data, label: newLabel } } : node
+      )
+    );
+  };
+
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
-      <button onClick={addNode} style={{ position: 'absolute', zIndex: 10 }}>
-        Add Node
+      <button onClick={addButtonNode} style={{ position: 'absolute', zIndex: 10, top: '10px', left: '10px' }}>
+        Add Button Node
+      </button>
+      <button onClick={addActionNode} style={{ position: 'absolute', zIndex: 10, top: '10px', left: '120px' }}>
+        Add Action Node
       </button>
       <ReactFlow
         nodes={nodes}
@@ -47,6 +130,7 @@ export default function App() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        nodeTypes={{ buttonNode: ButtonNode, actionNode: ActionNode }}
       >
         <Controls />
         <MiniMap />
