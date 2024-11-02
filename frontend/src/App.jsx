@@ -16,7 +16,7 @@ const initialNodes = [
   { id: 'button-1', position: { x: 0, y: 0 }, data: { label: 'Button Node 1' }, type: 'buttonNode' },
   { id: 'action-1', position: { x: 0, y: 100 }, data: { label: 'Action Node 1' }, type: 'actionNode' },
 ];
-const initialEdges = [{ id: 'e1-2', source: 'button-1', target: 'action-1' }];
+const initialEdges = [{ id: 'e1-2', source: 'button-1', target: 'action-1', label: 'Edge Label' }];
 
 // Custom component for "Button" nodes
 function ButtonNode({ id, data, isConnectable }) {
@@ -76,12 +76,56 @@ function ActionNode({ id, data, isConnectable }) {
   );
 }
 
+// Custom Edge Component with Editable Label
+function EditableEdge({ id, sourceX, sourceY, targetX, targetY, data, style, markerEnd }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [label, setLabel] = useState(data.label);
+
+  const onDoubleClick = () => setIsEditing(true);
+  const onBlur = () => {
+    data.onChangeLabel(id, label); // Updates the main state
+    setIsEditing(false);
+  };
+
+  return (
+    <g>
+      <path
+        id={id}
+        style={style}
+        className="react-flow__edge-path"
+        d={`M ${sourceX},${sourceY}L ${targetX},${targetY}`}
+        markerEnd={markerEnd}
+      />
+      {isEditing ? (
+        <foreignObject x={(sourceX + targetX) / 2 - 50} y={(sourceY + targetY) / 2 - 10} width="100" height="20">
+          <input
+            value={label}
+            onChange={(e) => setLabel(e.target.value)}
+            onBlur={onBlur}
+            autoFocus
+            style={{ width: '100%', fontSize: '12px' }}
+          />
+        </foreignObject>
+      ) : (
+        <text
+          x={(sourceX + targetX) / 2}
+          y={(sourceY + targetY) / 2 - 10}
+          onDoubleClick={onDoubleClick}
+          style={{ fontSize: '12px', cursor: 'pointer' }}
+        >
+          {label}
+        </text>
+      )}
+    </g>
+  );
+}
+
 export default function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
   const onConnect = useCallback(
-    (params) => setEdges((eds) => addEdge(params, eds)),
+    (params) => setEdges((eds) => addEdge({ ...params, label: 'New Edge' }, eds)),
     [setEdges]
   );
 
@@ -116,7 +160,16 @@ export default function App() {
     );
   };
 
-  // Function to export the diagram as JSON
+  // Function to update the label of an edge in the main edges state
+  const handleEdgeLabelChange = (id, newLabel) => {
+    setEdges((eds) =>
+      eds.map((edge) =>
+        edge.id === id ? { ...edge, label: newLabel } : edge
+      )
+    );
+  };
+
+  // Export Diagram function (same as before)
   const exportDiagram = () => {
     const diagramData = {
       nodes: nodes.map(node => ({
@@ -129,6 +182,7 @@ export default function App() {
         id: edge.id,
         source: edge.source,
         target: edge.target,
+        label: edge.label,
       })),
     };
 
@@ -155,11 +209,16 @@ export default function App() {
       </button>
       <ReactFlow
         nodes={nodes}
-        edges={edges}
+        edges={edges.map(edge => ({
+          ...edge,
+          data: { label: edge.label, onChangeLabel: handleEdgeLabelChange },
+          type: 'editableEdge',
+        }))}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         nodeTypes={{ buttonNode: ButtonNode, actionNode: ActionNode }}
+        edgeTypes={{ editableEdge: EditableEdge }}
       >
         <Controls />
         <MiniMap />
