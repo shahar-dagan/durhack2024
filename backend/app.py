@@ -1,4 +1,4 @@
-from flask import Flask, request, session, redirect, jsonify, send_file, url_for
+from flask import Flask, request, session, redirect, jsonify, send_file, url_for, redirect
 from open_ai_script import get_dalle_image_url
 
 
@@ -59,7 +59,7 @@ def handle_choice():
 def make_image_from_text():
     text = request.args.get("text")
     image_url = some_text_to_image_function(text)
-    return image_url
+    return redirect(image_url)
     # return (
     #     send_file(image, mimetype="image/jpeg")
     #     if image
