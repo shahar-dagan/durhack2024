@@ -2,15 +2,15 @@ import streamlit as st
 import requests
 
 # URL of your Flask app's endpoints
-BASE_URL = "http://localhost:8502"  # Update if using ngrok or a different host
+BASE_URL = "http://localhost:5000"
 
 
-def start_story(story_data):
+def start_story():
     """
-    Sends story data to Flask to initiate the story.
+    Sends a request to Flask to initiate the story.
     """
     try:
-        response = requests.post(f"{BASE_URL}/story_data", json=story_data)
+        response = requests.post(f"{BASE_URL}/story_data")
         response.raise_for_status()
         st.session_state["story_started"] = True
     except requests.RequestException as e:
@@ -43,6 +43,26 @@ def choose_next_chapter(choice):
         st.error(f"Error making choice: {e}")
 
 
+def display_chapter(chapter_data):
+    """
+    Parses and displays the current chapter data.
+    """
+    # Display chapter text
+    st.write(chapter_data.get("text", "No text provided."))
+
+    # Display chapter image if available
+    image_url = chapter_data.get("image_url")
+    if image_url:
+        st.image(image_url)
+
+    # Display button choices
+    button_choices = chapter_data.get("button_choices", [])
+    for choice in button_choices:
+        if st.button(choice):
+            choose_next_chapter(choice)
+            st.experimental_rerun()  # Reload page to fetch the updated chapter
+
+
 # Initialize session state
 if "story_started" not in st.session_state:
     st.session_state["story_started"] = False
@@ -50,25 +70,11 @@ if "story_started" not in st.session_state:
 # Story start logic
 if not st.session_state["story_started"]:
     st.write("Start the Story")
-    # Assuming story_data is predefined or fetched separately
-    story_data = [
-        {"text": "Welcome to the adventure!", "buttons": {"Begin": 1}},
-        {"text": "This is Chapter 1.", "buttons": {"Continue": 2, "Exit": 0}},
-        # Add more chapters here...
-    ]
     if st.button("Start Story"):
-        start_story(story_data)
+        start_story()
 
 # Display current chapter
 else:
     chapter_data = fetch_current_chapter()
     if chapter_data:
-        # Display text and image
-        st.write(chapter_data["text"])
-        st.image(chapter_data["image_url"])
-
-        # Display button choices
-        for choice in chapter_data["button_choices"]:
-            if st.button(choice):
-                choose_next_chapter(choice)
-                st.experimental_rerun()  # Reload page to fetch the updated chapter
+        display_chapter(chapter_data)

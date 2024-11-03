@@ -1,4 +1,13 @@
-from flask import Flask, request, session, redirect, jsonify, send_file, url_for, redirect
+from flask import (
+    Flask,
+    request,
+    session,
+    redirect,
+    jsonify,
+    send_file,
+    url_for,
+    redirect,
+)
 from open_ai_script import get_dalle_image_url
 
 
@@ -66,11 +75,10 @@ def make_image_from_text():
         print(f"trying to make image with prompt: {text}")
         # image_url = some_text_to_image_function(text)
         # image_url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkhAV70lOOVr2-gS3HXBVvR-wHv9IiTCmU8Q&s"
-        
+
         image_url = get_dalle_image_url(text)
 
         session["ai_image_urls_by_prompt"][text] = image_url
-    
 
     return redirect(session["ai_image_urls_by_prompt"][text])
 
@@ -124,7 +132,9 @@ def submit():
 
 @app.route("/", methods=["GET"])
 def main():
-    return "http://127.0.0.1:5000" + url_for("make_image_from_text", text="a dog playing on a bouncy castle")
+    return "http://127.0.0.1:5000" + url_for(
+        "make_image_from_text", text="a dog playing on a bouncy castle"
+    )
 
 
 if __name__ == "__main__":
