@@ -28,17 +28,22 @@ pipe = StableDiffusionPipeline.from_pretrained(model_id).to(device)
 generator = torch.Generator(device=device).manual_seed(42)
 
 
-def create_image(prompt, resolution=(480, 640)):
-    # Run the pipeline, showing some of the available arguments
-    pipe_output = pipe(
-        prompt=prompt, # What to generate
-        height=resolution[0], 
-        width=resolution[1],     # Specify the image size
-        # guidance_scale=8,          # How strongly to follow the prompt
-        num_inference_steps=35,    # How many steps to take
-        generator=generator        # Fixed random seed
-    )
+def create_image_factory(
+        resolution=(480, 640),
+        num_inference_steps = 35
+    ):
+    def create_image(prompt):
+        # Run the pipeline, showing some of the available arguments
+        pipe_output = pipe(
+            prompt=prompt, # What to generate
+            height=resolution[0], 
+            width=resolution[1],     # Specify the image size
+            # guidance_scale=8,          # How strongly to follow the prompt
+            num_inference_steps=num_inference_steps,    # How many steps to take
+            generator=generator        # Fixed random seed
+        )
 
-    image = pipe_output.images[0]
-
-    return image
+        image = pipe_output.images[0]
+        return image
+    
+    return create_image
