@@ -39,7 +39,8 @@ def handle_choice():
 
     session["current_chapter_index"] = new_chapter_i
 
-    return redirect(game_page_url)
+    # return redirect(game_page_url)
+    return ""
 
 
 @app.route("/make_image_from_text", methods=["GET"])

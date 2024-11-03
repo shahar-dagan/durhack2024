@@ -36,6 +36,11 @@ def choose_next_chapter(choice):
             f"{BASE_URL}/new_chapter_from_choice", params={"choice": choice}
         )
         response.raise_for_status()
+
+        # display new chapter data
+        chapter_data = fetch_current_chapter()
+        display_chapter(chapter_data)
+
     except requests.RequestException as e:
         st.error(f"Error making choice: {e}")
 
