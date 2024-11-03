@@ -10,9 +10,16 @@ from flask import (
 )
 from open_ai_script import get_dalle_image_url
 from flask_cors import CORS
+import requests
+from io import BytesIO
 
 
 app = Flask(__name__)
+
+# app.config['SESSION_TYPE'] = 'filesystem'       # Use server-side session
+# app.config['SESSION_COOKIE_SAMESITE'] = 'None'   # Required for cross-origin cookies
+# app.config['SESSION_COOKIE_SECURE'] = True
+
 app.secret_key = "secret"
 build_page_url = "http://localhost:5173/"
 game_page_url = "http://localhost:8502/"
@@ -29,12 +36,12 @@ default_story_data = [
 
 @app.route("/new_chapter_from_choice")
 def handle_choice():
-    print("Session data:")
+    print("Session data: handle choice")
     print(dict(session))
 
     choice = request.args["choice"]
 
-    current_chapter = session["story_data"][session.get("current_chapter")]
+    current_chapter = session["story_data"][session.get("current_chapter_index")]
     new_chapter_i = current_chapter["buttons"].get(choice)
 
     if new_chapter_i is None:
@@ -48,6 +55,10 @@ def handle_choice():
 
 @app.route("/make_image_from_text", methods=["GET"])
 def make_image_from_text():
+    print("Session data: make image from text")
+    print(dict(session))
+
+
     text = request.args.get("text")
 
     if session.get("ai_image_urls_by_prompt") is None:
@@ -62,7 +73,17 @@ def make_image_from_text():
 
         session["ai_image_urls_by_prompt"][text] = image_url
 
-    return redirect(session["ai_image_urls_by_prompt"][text])
+    image_url = session["ai_image_urls_by_prompt"][text]
+    image_response = requests.get(image_url)
+
+    if image_response.status_code == 200:
+        # Convert image data to a BytesIO object for in-memory handling
+        image_data = BytesIO(image_response.content)
+        # Return the image as a file response without redirecting
+        return send_file(image_data, mimetype="image/jpeg")
+
+
+    # return redirect(session["ai_image_urls_by_prompt"][text])
 
     # return (
     #     send_file(image, mimetype="image/jpeg")
@@ -73,15 +94,15 @@ def make_image_from_text():
 
 @app.route("/story_image_data", methods=["GET"])
 def handle_request_story_image_data():
-    print("Session data:")
+    print("Session data: story image data before")
     print(dict(session))
 
     # just for debug. delete me
-    if session.get("current_chapter") is None:
+    if session.get("current_chapter_index") is None:
         session["story_data"] = default_story_data
         session["current_chapter_index"] = 0
 
-    print("Session data:")
+    print("Session data: story image data after")
     print(dict(session))
 
     current_chapter = session["story_data"][
@@ -124,7 +145,7 @@ def main():
 
 
 if __name__ == "__main__":
-    cors = CORS(app, origins=["*"])  # Replace with your React app's URL
+    cors = CORS(app, supports_credentials=True, origins=["*"])  # Replace with your React app's URL
     app.run(port=5000, debug=True)
 
     # react app url:
