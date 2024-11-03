@@ -1,10 +1,13 @@
 import streamlit as st
+pages = []
+page = 0
+st.set_page_config(page_title="Skeleton Layout Example", layout="wide")
+
+# Header section
+st.title("TITLE")
+st.image("images/Chur Bum.jpg")
+st.write("lalalalalalalala okkokokokokok")
 
 
-st.set_page_config(
-    st.title("My Streamlit App"),  # Title of the browser tab
-    st.header("🚀"),                 # Icon for the tab
-    layout="wide",                  # 'wide' or 'centered' layout
-    initial_sidebar_state="expanded"  # 'expanded', 'collapsed', or 'auto'
-)
-
+if st.button("NEXT PAGE"):
+    page =+ 1
