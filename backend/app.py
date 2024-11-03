@@ -60,13 +60,13 @@ def make_image_from_text():
 @app.route("/story_image_data", methods=["GET"])
 def handle_request_story_image_data():
     if session.get("current_chapter") is None:
-        session["story_data"] = {"text": "Shahar went sailing", "buttons": []}
+        session["story_data"] = [{"text": "Shahar went sailing", "buttons": {}}]
         session["current_chapter_index"] = 0
 
-    current_chapter = session["story_data"][session.get("current_chapter")]
+    current_chapter = session["story_data"][session.get("current_chapter_index")]
 
     text = current_chapter["text"]
-    button_choices = current_chapter["buttons"].keys()
+    button_choices = list(current_chapter["buttons"].keys())
     image_url = url_for("make_image_from_text", text=text)
 
     return jsonify(
