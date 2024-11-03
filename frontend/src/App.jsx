@@ -188,15 +188,32 @@ export default function App() {
       return nodeObject;
     });
 
-    // Convert to JSON and download
-    const blob = new Blob([JSON.stringify(diagramData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
+    // // Convert to JSON and download
+    // const blob = new Blob([JSON.stringify(diagramData, null, 2)], { type: 'application/json' });
+    // const url = URL.createObjectURL(blob);
 
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'diagram.json';
-    a.click();
-    URL.revokeObjectURL(url);
+    // const a = document.createElement('a');
+    // a.href = url;
+    // a.download = 'diagram.json';
+    // a.click();
+    // URL.revokeObjectURL(url);
+
+    let jsonDiagramData = JSON.stringify(diagramData)
+    console.log("Making post request with data to flask server");
+    console.log({jsonDiagramData})
+
+    let flask_server_url_data_endpoint = "http://127.0.0.1:5000/submit";
+    fetch(
+      flask_server_url_data_endpoint,
+      {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonDiagramData,
+        mode: 'no-cors'
+      }
+    )
 
 
   };

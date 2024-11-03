@@ -102,7 +102,14 @@ def handle_request_story_image_data():
 
 @app.route("/submit", methods=["POST"])
 def submit():
+    print("request content")
+    print(request.get_data(as_text=True))
+
+    print("trying to unpack request to json")
     story_data = request.get_json()
+    print("story data")
+    print(story_data)
+
     if not story_data:
         return jsonify({"error": "No data provided"}), 400
 
