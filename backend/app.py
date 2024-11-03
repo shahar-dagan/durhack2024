@@ -18,7 +18,10 @@ build_page_url = "http://localhost:5173/"
 game_page_url = "http://localhost:8502/"
 
 default_story_data = [
-    {"text": "Shahar went sailing", "buttons": {"speed up": 1, "enjoy the sunset": 2}},
+    {
+        "text": "Shahar went sailing",
+        "buttons": {"speed up": 1, "enjoy the sunset": 2},
+    },
     {"text": "Capsize", "buttons": {}},
     {"text": "See the strange pattern in the sky", "buttons": {}},
 ]
@@ -28,7 +31,7 @@ default_story_data = [
 def handle_choice():
     print("Session data:")
     print(dict(session))
-    
+
     choice = request.args["choice"]
 
     current_chapter = session["story_data"][session.get("current_chapter")]
@@ -73,7 +76,6 @@ def handle_request_story_image_data():
     print("Session data:")
     print(dict(session))
 
-
     # just for debug. delete me
     if session.get("current_chapter") is None:
         session["story_data"] = default_story_data
@@ -82,7 +84,9 @@ def handle_request_story_image_data():
     print("Session data:")
     print(dict(session))
 
-    current_chapter = session["story_data"][session.get("current_chapter_index")]
+    current_chapter = session["story_data"][
+        session.get("current_chapter_index")
+    ]
 
     text = current_chapter["text"]
     button_choices = list(current_chapter["buttons"].keys())
@@ -109,9 +113,7 @@ def submit():
 
     session["story_data"] = story_data
     session["current_chapter_index"] = 0
-
-    return ""
-
+    return " "
 
 
 @app.route("/", methods=["GET"])
@@ -127,4 +129,3 @@ if __name__ == "__main__":
 
     # react app url:
     react_app_url = "http://localhost:5173/"
-    
