@@ -5,18 +5,9 @@ import requests
 BASE_URL = "http://localhost:5000"
 
 
-def start_story():
-    """
-    Sends a request to Flask to initiate the story.
-    """
-    try:
-        response = requests.post(f"{BASE_URL}/story_data")
-        response.raise_for_status()
-        st.session_state["story_started"] = True
-    except requests.RequestException as e:
-        st.error(f"Error starting story: {e}")
-
-
+# http get from flask
+# retrieve story related from json
+# return data to be displayed
 def fetch_current_chapter():
     """
     Fetches the current chapter's data from Flask.
@@ -24,12 +15,18 @@ def fetch_current_chapter():
     try:
         response = requests.get(f"{BASE_URL}/story_image_data")
         response.raise_for_status()
-        return response.json()
+        json = response.json()
+        return json
     except requests.RequestException as e:
         st.error(f"Error fetching current chapter: {e}")
-        return None
 
 
+
+# takes in a choice from buttons clicked
+# make get request to server to decide new chapter
+
+# try using redirect to go to the same page (for new chapter data)
+# failing that try to refresh page
 def choose_next_chapter(choice):
     """
     Sends the selected choice to Flask to navigate to the next chapter.
@@ -43,6 +40,8 @@ def choose_next_chapter(choice):
         st.error(f"Error making choice: {e}")
 
 
+# display data about the story
+# 1 text field, many buttons, 1 image
 def display_chapter(chapter_data):
     """
     Parses and displays the current chapter data.
@@ -63,18 +62,17 @@ def display_chapter(chapter_data):
             st.experimental_rerun()  # Reload page to fetch the updated chapter
 
 
-# Initialize session state
-if "story_started" not in st.session_state:
-    st.session_state["story_started"] = False
+# # Initialize session state
+# if "story_started" not in st.session_state:
+#     st.session_state["story_started"] = False
 
-# Story start logic
-if not st.session_state["story_started"]:
-    st.write("Start the Story")
-    if st.button("Start Story"):
-        start_story()
+# # Story start logic
+# if not st.session_state["story_started"]:
+#     st.write("Start the Story")
+#     if st.button("Start Story"):
+#         fetch_current_chapter()
 
-# Display current chapter
-else:
-    chapter_data = fetch_current_chapter()
-    if chapter_data:
-        display_chapter(chapter_data)
+
+chapter_data = fetch_current_chapter()
+display_chapter(chapter_data)
+

@@ -18,50 +18,17 @@ build_page_url = "http://localhost:5173/"
 game_page_url = "http://localhost:8502/"
 
 
-class Chapter:
-    def __init__(self, story_text):
-        self.story_text = story_text
-        self.buttons = []
-
-    def add_button(self, description: str, chapter):
-        self.buttons.append((description, chapter))
-
-
-def process_story_data(story_data):
-    chapters = [Chapter(chapter_dict["text"]) for chapter_dict in story_data]
-    for chapter, chapter_dict in zip(chapters, story_data):
-        for button_name, chapter_index in chapter_dict["buttons"].items():
-            chapter.add_button(button_name, chapters[chapter_index])
-
-    return chapters
-
-
-# @app.route("/story_data", methods=["POST"])
-# def handle_receive_story_data():
-#     json_file = request.get_json()
-#     chapters = process_story_data(json_file)
-#     session["chapters"] = chapters
-#     session["current_chapter"] = chapters[0]
-#     return redirect(game_page_url)
-
-
-def some_text_to_image_function(text):
-    # Implement this function to generate an image from text
-    return None
-
-
 @app.route("/new_chapter_from_choice")
 def handle_choice():
     choice = request.args.get("choice")
-    current_chapter = session.get("current_chapter")
-    new_chapter = (
-        current_chapter.buttons.get(choice) if current_chapter else None
-    )
+    current_chapter = session.get("server_data")[session.get("current_chapter")]
+    new_chapter_i = current_chapter["buttons"].get(choice)
 
-    if new_chapter is None:
+    if new_chapter_i is None:
         return "Invalid choice", 400
 
-    session["current_chapter"] = new_chapter
+    session["current_chapter_index"] = new_chapter_i
+
     return redirect(game_page_url)
 
 
@@ -92,12 +59,14 @@ def make_image_from_text():
 
 @app.route("/story_image_data", methods=["GET"])
 def handle_request_story_image_data():
-    current_chapter = session.get("current_chapter")
-    if not current_chapter:
-        return jsonify({"error": "No current chapter"}), 404
+    if session.get("current_chapter") is None:
+        session["story_data"] = {"text": "Shahar went sailing", "buttons": []}
+        session["current_chapter_index"] = 0
 
-    text = current_chapter.story_text
-    button_choices = [button[0] for button in current_chapter.buttons]
+    current_chapter = session["story_data"][session.get("current_chapter")]
+
+    text = current_chapter["text"]
+    button_choices = current_chapter["buttons"].keys()
     image_url = url_for("make_image_from_text", text=text)
 
     return jsonify(
@@ -119,16 +88,9 @@ def submit():
     print("story data")
     print(story_data)
 
-    if not story_data:
-        return jsonify({"error": "No data provided"}), 400
+    session["story_data"] = story_data
+    session["current_chapter_index"] = 0
 
-    # try:
-    chapters = process_story_data(story_data)
-    session["chapters"] = chapters
-    session["current_chapter"] = chapters[0]
-    return jsonify({"message": "Story data processed successfully"}), 200
-    # except Exception as e:
-    #     return jsonify({"error": str(e)}), 500
 
 
 @app.route("/", methods=["GET"])
