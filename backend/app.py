@@ -17,11 +17,21 @@ app.secret_key = "secret"
 build_page_url = "http://localhost:5173/"
 game_page_url = "http://localhost:8502/"
 
+default_story_data = [
+    {"text": "Shahar went sailing", "buttons": {"speed up": 1, "enjoy the sunset": 2}},
+    {"text": "Capsize", "buttons": {}},
+    {"text": "See the strange pattern in the sky", "buttons": {}},
+]
+
 
 @app.route("/new_chapter_from_choice")
 def handle_choice():
-    choice = request.args.get("choice")
-    current_chapter = session.get("server_data")[session.get("current_chapter")]
+    print("Session data:")
+    print(dict(session))
+    
+    choice = request.args["choice"]
+
+    current_chapter = session["story_data"][session.get("current_chapter")]
     new_chapter_i = current_chapter["buttons"].get(choice)
 
     if new_chapter_i is None:
@@ -59,9 +69,17 @@ def make_image_from_text():
 
 @app.route("/story_image_data", methods=["GET"])
 def handle_request_story_image_data():
+    print("Session data:")
+    print(dict(session))
+
+
+    # just for debug. delete me
     if session.get("current_chapter") is None:
-        session["story_data"] = [{"text": "Shahar went sailing", "buttons": {}}]
+        session["story_data"] = default_story_data
         session["current_chapter_index"] = 0
+
+    print("Session data:")
+    print(dict(session))
 
     current_chapter = session["story_data"][session.get("current_chapter_index")]
 
@@ -90,6 +108,8 @@ def submit():
 
     session["story_data"] = story_data
     session["current_chapter_index"] = 0
+
+    return ""
 
 
 

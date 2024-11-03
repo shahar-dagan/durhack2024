@@ -52,14 +52,14 @@ def display_chapter(chapter_data):
     # Display chapter image if available
     image_url = chapter_data.get("image_url")
     if image_url:
-        st.image(image_url)
+        st.image(BASE_URL + image_url)
 
-    # Display button choices
+    # # Display button choices
     button_choices = chapter_data.get("button_choices", [])
     for choice in button_choices:
         if st.button(choice):
             choose_next_chapter(choice)
-            st.experimental_rerun()  # Reload page to fetch the updated chapter
+            # st.experimental_rerun()  # Reload page to fetch the updated chapter
 
 
 # # Initialize session state
