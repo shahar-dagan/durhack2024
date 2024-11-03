@@ -7,11 +7,13 @@ from flask import (
     send_file,
     url_for,
     redirect,
+    render_template
 )
 from open_ai_script import get_dalle_image_url
 from flask_cors import CORS
 import requests
 from io import BytesIO
+
 
 
 app = Flask(__name__)
@@ -29,9 +31,12 @@ default_story_data = [
         "text": "Shahar went sailing",
         "buttons": {"speed up": 1, "enjoy the sunset": 2},
     },
-    {"text": "Capsize", "buttons": {}},
+    {"text": "Capsize", "buttons": {"enjoy the sunset": 2, "swim": 4}},
     {"text": "See the strange pattern in the sky", "buttons": {}},
+    {"text": "Die", "buttons": {}},
+
 ]
+
 
 
 @app.route("/new_chapter_from_choice")
@@ -113,6 +118,12 @@ def handle_request_story_image_data():
     button_choices = list(current_chapter["buttons"].keys())
     image_url = url_for("make_image_from_text", text=text)
 
+    print("chapter")
+    print(current_chapter)
+    print("buttons")
+    print(button_choices)
+
+
     return jsonify(
         {
             "text": text,
@@ -137,11 +148,17 @@ def submit():
     return " "
 
 
+# @app.route("/", methods=["GET"])
+# def main():
+#     return "http://127.0.0.1:5000" + url_for(
+#         "make_image_from_text", text="a dog playing on a bouncy castle"
+#     )
+
+
 @app.route("/", methods=["GET"])
 def main():
-    return "http://127.0.0.1:5000" + url_for(
-        "make_image_from_text", text="a dog playing on a bouncy castle"
-    )
+    return render_template("index.html")
+
 
 
 if __name__ == "__main__":

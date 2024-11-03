@@ -1,0 +1,79 @@
+<html>
+
+<head>
+
+
+</head>
+
+
+<body>
+
+    <h2>Adventure Game</h2>
+
+    <p id="text"></p>
+
+    <img width = 50% height=40% id="image"/>
+
+    <button id="option_1"></button>
+    <button id="option_2"></button>
+
+
+    <script>
+
+        function option_selected(option) {
+            fetch(
+                `http://127.0.0.1:5000/new_chapter_from_choice?choice=${option}`,
+                {
+                    method: "GET"
+                }
+            )
+
+            get_and_display_chapter_data();
+        }
+
+        function display_content(text, image_url, option_1, option_2){
+            // Set the text for the paragraph
+            document.getElementById('text').textContent = text;
+
+            // Set the image source
+            document.getElementById('image').src = image_url;
+
+            // Set the button texts
+            console.log({option_1})
+            document.getElementById('option_1').textContent = option_1;
+            document.getElementById('option_1').value = option_1;
+            document.getElementById('option_1').addEventListener('click', () => option_selected(option_1));
+
+            console.log({option_2})
+            document.getElementById('option_2').textContent = option_2;
+            document.getElementById('option_2').value = option_2;
+            document.getElementById('option_2').addEventListener('click', () => option_selected(option_2));
+        }
+
+        async function get_and_display_chapter_data() {
+            let chapter_data = await fetch(
+                "http://127.0.0.1:5000/story_image_data",
+                {
+                    method: "GET"
+                }
+            )
+            chapter_data = await chapter_data.json();
+            console.log({chapter_data})
+            console.log(chapter_data.button_choices)
+            console.log(chapter_data.button_choices[0])
+            console.log(chapter_data.button_choices[1])
+
+            display_content(
+                text = chapter_data.text,
+                image_url = chapter_data.image_url,
+                option_1 = chapter_data.button_choices[0],
+                option_2 = chapter_data.button_choices[1],
+            )
+        }
+        
+        get_and_display_chapter_data()
+
+    </script>
+</body>
+
+</html>

@@ -11,17 +11,17 @@ client = OpenAI(
 
 
 def get_dalle_image_url(prompt):
-    # response = client.images.generate(
-    # model="dall-e-3",
-    # prompt=prompt,
-    # size="1024x1024",
-    # quality="standard",
-    # n=1,
-    # )
+    response = client.images.generate(
+    model="dall-e-3",
+    prompt=prompt,
+    size="1024x1024",
+    quality="standard",
+    n=1,
+    )
 
-    # image_url = response.data[0].url
+    image_url = response.data[0].url
 
-    image_url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkhAV70lOOVr2-gS3HXBVvR-wHv9IiTCmU8Q&s"
+    # image_url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkhAV70lOOVr2-gS3HXBVvR-wHv9IiTCmU8Q&s"
 
     # Download and save the image
     image_data = requests.get(image_url).content
