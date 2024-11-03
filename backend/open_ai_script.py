@@ -21,6 +21,8 @@ def get_dalle_image_url(prompt):
 
     image_url = response.data[0].url
 
+    # image_url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkhAV70lOOVr2-gS3HXBVvR-wHv9IiTCmU8Q&s"
+
     # Download and save the image
     image_data = requests.get(image_url).content
 
