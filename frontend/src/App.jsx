@@ -162,28 +162,43 @@ export default function App() {
     );
   };
 
-  const exportDiagram = async () => {
+  // Export Diagram function with desired format
+  const exportDiagram = () => {
+    // Map each node to the desired format
     const diagramData = nodes.map(node => {
+      // Find edges where this node is the source
       const outgoingEdges = edges.filter(edge => edge.source === node.id);
+
+      // Prepare buttons dictionary from outgoing edges
       const buttons = {};
       outgoingEdges.forEach(edge => {
-        buttons[edge.label] = edge.target;
+        buttons[edge.label] = nodes.findIndex(n => n.id === edge.target) + 1;
       });
-      return {
-        id: node.id,
+
+      // Structure the object for this node
+      const nodeObject = {
         text: node.data.label,
-        buttons: buttons
       };
+
+      // Add buttons if they exist for this node
+      if (Object.keys(buttons).length > 0) {
+        nodeObject.buttons = buttons;
+      }
+
+      return nodeObject;
     });
 
-    try {
-      const response = await axios.post('http://localhost:5000/submit', diagramData, {
-        headers: { 'Content-Type': 'application/json' }
-      });
-      console.log('Data sent to Flask server:', response.data);
-    } catch (error) {
-      console.error('Error sending data to Flask server:', error);
-    }
+    // Convert to JSON and download
+    const blob = new Blob([JSON.stringify(diagramData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'diagram.json';
+    a.click();
+    URL.revokeObjectURL(url);
+
+
   };
 
   return (
