@@ -58,8 +58,22 @@ def handle_choice():
 @app.route("/make_image_from_text", methods=["GET"])
 def make_image_from_text():
     text = request.args.get("text")
-    image_url = some_text_to_image_function(text)
-    return redirect(image_url)
+
+    if session.get("ai_image_urls_by_prompt") is None:
+        session["ai_image_urls_by_prompt"] = {}
+
+    if session["ai_image_urls_by_prompt"].get(text) is None:
+        print(f"trying to make image with prompt: {text}")
+        # image_url = some_text_to_image_function(text)
+        # image_url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkhAV70lOOVr2-gS3HXBVvR-wHv9IiTCmU8Q&s"
+        
+        image_url = get_dalle_image_url(text)
+
+        session["ai_image_urls_by_prompt"][text] = image_url
+    
+
+    return redirect(session["ai_image_urls_by_prompt"][text])
+
     # return (
     #     send_file(image, mimetype="image/jpeg")
     #     if image
@@ -99,6 +113,11 @@ def submit():
         return jsonify({"message": "Story data processed successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@app.route("/", methods=["GET"])
+def main():
+    return "http://127.0.0.1:5000" + url_for("make_image_from_text", text="a dog playing on a bouncy castle")
 
 
 if __name__ == "__main__":
