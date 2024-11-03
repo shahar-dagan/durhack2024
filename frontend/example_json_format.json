@@ -1,0 +1,19 @@
+[
+    {   
+        "text": "You wake up on a pirate ship",
+        "buttons": {
+            "meet the crew": 1,
+            "swim to shore": 2
+        }
+    },
+    {
+        "text": "you chat with the crew. The cook asks you to pet his parrot",
+        "buttons": {
+            "pet parrot": 4,
+            "recoil in horror": 5
+        }
+    },
+    {
+        "text": "get to island"
+    }
+]
