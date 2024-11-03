@@ -1,4 +1,6 @@
-from flask import Flask, request, session, redirect, jsonify, send_file, url_for
+from flask import Flask, request, session, redirect, jsonify, send_file, url_for, redirect
+from open_ai_script import get_dalle_image_url
+
 
 app = Flask(__name__)
 app.secret_key = "secret"
@@ -24,13 +26,13 @@ def process_story_data(story_data):
     return chapters
 
 
-@app.route("/story_data", methods=["POST"])
-def handle_receive_story_data():
-    json_file = request.get_json()
-    chapters = process_story_data(json_file)
-    session["chapters"] = chapters
-    session["current_chapter"] = chapters[0]
-    return redirect(game_page_url)
+# @app.route("/story_data", methods=["POST"])
+# def handle_receive_story_data():
+#     json_file = request.get_json()
+#     chapters = process_story_data(json_file)
+#     session["chapters"] = chapters
+#     session["current_chapter"] = chapters[0]
+#     return redirect(game_page_url)
 
 
 def some_text_to_image_function(text):
@@ -56,12 +58,13 @@ def handle_choice():
 @app.route("/make_image_from_text", methods=["GET"])
 def make_image_from_text():
     text = request.args.get("text")
-    image = some_text_to_image_function(text)
-    return (
-        send_file(image, mimetype="image/jpeg")
-        if image
-        else "No image generated"
-    ), 404
+    image_url = some_text_to_image_function(text)
+    return redirect(image_url)
+    # return (
+    #     send_file(image, mimetype="image/jpeg")
+    #     if image
+    #     else "No image generated"
+    # ), 404
 
 
 @app.route("/story_image_data", methods=["GET"])
