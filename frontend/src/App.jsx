@@ -169,36 +169,41 @@ export default function App() {
     );
   };
 
-  // Export Diagram function (same as before)
+  // Export Diagram function with desired format
   const exportDiagram = () => {
-    // Map each node to an object containing its text and buttons
-  const diagramData = nodes.map(node => {
-    // Find edges where this node is the source
-    const outgoingEdges = edges.filter(edge => edge.source === node.id);
+    // Map each node to the desired format
+    const diagramData = nodes.map(node => {
+      // Find edges where this node is the source
+      const outgoingEdges = edges.filter(edge => edge.source === node.id);
 
-    // Create buttons dictionary from outgoing edges
-    const buttons = {};
-    outgoingEdges.forEach(edge => {
-      buttons[edge.label] = edge.target;
+      // Prepare buttons dictionary from outgoing edges
+      const buttons = {};
+      outgoingEdges.forEach(edge => {
+        buttons[edge.label] = nodes.findIndex(n => n.id === edge.target) + 1;
+      });
+
+      // Structure the object for this node
+      const nodeObject = {
+        text: node.data.label,
+      };
+
+      // Add buttons if they exist for this node
+      if (Object.keys(buttons).length > 0) {
+        nodeObject.buttons = buttons;
+      }
+
+      return nodeObject;
     });
 
-    // Return the formatted object for this node
-    return {
-      id: node.id,
-      text: node.data.label,
-      buttons: buttons
-    };
-  });
+    // Convert to JSON and download
+    const blob = new Blob([JSON.stringify(diagramData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
 
-  // Convert to JSON and download
-  const blob = new Blob([JSON.stringify(diagramData, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'diagram.json';
-  a.click();
-  URL.revokeObjectURL(url);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'diagram.json';
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
