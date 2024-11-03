@@ -21,46 +21,46 @@
 
 
 
-from diffusers import DiffusionPipeline
-import torch
+# from diffusers import DiffusionPipeline
+# import torch
 
-# Load the model from Hugging Face
-pipe = DiffusionPipeline.from_pretrained(
-    "stabilityai/stable-diffusion-3.5-medium",
-    use_auth_token=True,  # Use this if you have a token set up
-    cache_dir="C:\\Users\\henry\\Downloads\\stable_diffusion_cache"  # Optional: Specify a local directory
-)
+# # Load the model from Hugging Face
+# pipe = DiffusionPipeline.from_pretrained(
+#     "stabilityai/stable-diffusion-3.5-medium",
+#     use_auth_token=True,  # Use this if you have a token set up
+#     cache_dir="C:\\Users\\henry\\Downloads\\stable_diffusion_cache"  # Optional: Specify a local directory
+# )
 
-# Move the model to GPU if available
-pipe = pipe.to("cuda") if torch.cuda.is_available() else pipe.to("cpu")
+# # Move the model to GPU if available
+# pipe = pipe.to("cuda") if torch.cuda.is_available() else pipe.to("cpu")
 
-# Run inference with a prompt
-prompt = "Astronaut in a jungle, cold color palette, muted colors, detailed, 8k"
+# # Run inference with a prompt
+# prompt = "Astronaut in a jungle, cold color palette, muted colors, detailed, 8k"
 
-# Generate image
-image = pipe(prompt).images[0]
-# Save the image
-image.save("astronaut_created_image.png")
-print("Image saved successfully.")
+# # Generate image
+# image = pipe(prompt).images[0]
+# # Save the image
+# image.save("astronaut_created_image.png")
+# print("Image saved successfully.")
 
 
 
-# import requests
-# # You can access the image with PIL.Image for example
-# import io
-# from PIL import Image
+import requests
+# You can access the image with PIL.Image for example
+import io
+from PIL import Image
 
-# API_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-3.5-medium"
-# headers = {"Authorization": "Bearer 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"}
+API_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-3.5-medium"
+headers = {"Authorization": "Bearer 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"}
 
-# def query(payload):
-# 	response = requests.post(API_URL, headers=headers, json=payload)
-# 	print(response.content)
-# 	print(response.status_code)		
-# 	assert response.status_code == 200
+def query(payload):
+	response = requests.post(API_URL, headers=headers, json=payload)
+	print(response.content)
+	print(response.status_code)		
+	assert response.status_code == 200
 
-# 	return response.content
-# image_bytes = query({
-# 	"inputs": "Astronaut riding a horse",
-# })
-# image = Image.open(io.BytesIO(image_bytes))
+	return response.content
+image_bytes = query({
+	"inputs": "Astronaut riding a horse",
+})
+image = Image.open(io.BytesIO(image_bytes))
