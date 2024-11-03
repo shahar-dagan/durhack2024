@@ -211,7 +211,6 @@ export default function App() {
           'Content-Type': 'application/json',
         },
         body: jsonDiagramData,
-        mode: 'no-cors'
       }
     )
 

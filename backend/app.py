@@ -1,5 +1,6 @@
 from flask import Flask, request, session, redirect, jsonify, send_file, url_for, redirect
 from open_ai_script import get_dalle_image_url
+from flask_cors import CORS
 
 
 app = Flask(__name__)
@@ -113,13 +114,13 @@ def submit():
     if not story_data:
         return jsonify({"error": "No data provided"}), 400
 
-    try:
-        chapters = process_story_data(story_data)
-        session["chapters"] = chapters
-        session["current_chapter"] = chapters[0]
-        return jsonify({"message": "Story data processed successfully"}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    # try:
+    chapters = process_story_data(story_data)
+    session["chapters"] = chapters
+    session["current_chapter"] = chapters[0]
+    return jsonify({"message": "Story data processed successfully"}), 200
+    # except Exception as e:
+    #     return jsonify({"error": str(e)}), 500
 
 
 @app.route("/", methods=["GET"])
@@ -128,4 +129,9 @@ def main():
 
 
 if __name__ == "__main__":
+    cors = CORS(app, origins=["*"])  # Replace with your React app's URL
     app.run(port=5000, debug=True)
+
+    # react app url:
+    react_app_url = "http://localhost:5173/"
+    
