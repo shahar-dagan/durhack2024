@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 
 # URL of your Flask app's endpoints
-BASE_URL = "http://127.0.0.1:5000"  # Update if using ngrok or a different host
+BASE_URL = "http://localhost:8502"  # Update if using ngrok or a different host
 
 
 def start_story(story_data):
