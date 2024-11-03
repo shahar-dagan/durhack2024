@@ -1,3 +1,4 @@
+
 import React, { useCallback, useState } from 'react';
 import axios from 'axios';
 import {
@@ -120,30 +121,35 @@ function EditableEdge({ id, sourceX, sourceY, targetX, targetY, data, style, mar
 export default function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [nodeIndex, setNodeIndex] = useState(nodes.length); // Track the next node index
 
   const onConnect = useCallback(
-    (params) => setEdges((eds) => addEdge({ ...params, label: 'New Edge' }, eds)),
-    [setEdges]
+    (params) => setEdges((eds) => addEdge({ ...params, label: `Edge to ${nodeIndex}` }, eds)),
+    [setEdges, nodeIndex]
   );
 
   const addButtonNode = () => {
+    const newNodeIndex = nodeIndex + 1;
     const newNode = {
-      id: `button-${nodes.filter(node => node.id.startsWith('button')).length + 1}`,
+      id: `button-${newNodeIndex}`,
       position: { x: Math.random() * 250, y: Math.random() * 250 },
-      data: { label: `Button Node ${nodes.filter(node => node.id.startsWith('button')).length + 1}`, onChangeLabel: handleLabelChange },
+      data: { label: `Button Node ${newNodeIndex}`, onChangeLabel: handleLabelChange },
       type: 'buttonNode',
     };
     setNodes((nds) => [...nds, newNode]);
+    setNodeIndex(newNodeIndex);
   };
 
   const addActionNode = () => {
+    const newNodeIndex = nodeIndex + 1;
     const newNode = {
-      id: `action-${nodes.filter(node => node.id.startsWith('action')).length + 1}`,
+      id: `action-${newNodeIndex}`,
       position: { x: Math.random() * 250, y: Math.random() * 250 },
-      data: { label: `Action Node ${nodes.filter(node => node.id.startsWith('action')).length + 1}`, onChangeLabel: handleLabelChange },
+      data: { label: `Action Node ${newNodeIndex}`, onChangeLabel: handleLabelChange },
       type: 'actionNode',
     };
     setNodes((nds) => [...nds, newNode]);
+    setNodeIndex(newNodeIndex);
   };
 
   const handleLabelChange = (id, newLabel) => {
@@ -165,44 +171,39 @@ export default function App() {
   // Export Diagram function with desired format
   const exportDiagram = () => {
     // Map each node to the desired format
-    const diagramData = nodes.map(node => {
+    const diagramData = nodes.map((node) => {
       // Find edges where this node is the source
       const outgoingEdges = edges.filter(edge => edge.source === node.id);
-
-      // Prepare buttons dictionary from outgoing edges
+  
+      // Prepare buttons dictionary using the correct index for each target node
       const buttons = {};
-      outgoingEdges.forEach(edge => {
-        buttons[edge.label] = nodes.findIndex(n => n.id === edge.target) + 1;
+      outgoingEdges.forEach((edge) => {
+        // Find the actual index of the target node in the `nodes` array
+        const targetIndex = nodes.findIndex(n => n.id === edge.target);
+        if (targetIndex !== -1) {
+          buttons[edge.label] = targetIndex; // Assign the target node's correct index
+        }
       });
-
+  
       // Structure the object for this node
       const nodeObject = {
         text: node.data.label,
       };
-
+  
       // Add buttons if they exist for this node
       if (Object.keys(buttons).length > 0) {
         nodeObject.buttons = buttons;
       }
-
+  
       return nodeObject;
     });
-
-    // // Convert to JSON and download
-    // const blob = new Blob([JSON.stringify(diagramData, null, 2)], { type: 'application/json' });
-    // const url = URL.createObjectURL(blob);
-
-    // const a = document.createElement('a');
-    // a.href = url;
-    // a.download = 'diagram.json';
-    // a.click();
-    // URL.revokeObjectURL(url);
-
-    let jsonDiagramData = JSON.stringify(diagramData)
+  
+    // Convert to JSON and send to the Flask server
+    const jsonDiagramData = JSON.stringify(diagramData, null, 2);
     console.log("Making post request with data to flask server");
-    console.log({jsonDiagramData})
-
-    let flask_server_url_data_endpoint = "http://127.0.0.1:5000/submit";
+    console.log({ jsonDiagramData });
+  
+    const flask_server_url_data_endpoint = "http://127.0.0.1:5000/submit";
     fetch(
       flask_server_url_data_endpoint,
       {
@@ -212,9 +213,7 @@ export default function App() {
         },
         body: jsonDiagramData,
       }
-    )
-
-
+    );
   };
 
   return (
@@ -245,3 +244,4 @@ export default function App() {
     </div>
   );
 }
+
