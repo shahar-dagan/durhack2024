@@ -1,0 +1,13 @@
+huggingface_hub
+sentencepiece
+PIL
+
+ipywidgets
+diffusers 
+datasets 
+transformers 
+accelerate 
+ftfy 
+pyarrow==9.0.0
+
+flask
